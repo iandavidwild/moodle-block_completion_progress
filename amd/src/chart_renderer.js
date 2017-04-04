@@ -39,8 +39,13 @@ define(['jquery'], function($) {
 			}
 
 			// Create the chart.js data structure using 'labelset' and 'dataset'
+			var data = $.parseJSON(dataset);
+			var labels = $.parseJSON(labelset);
+			
 			var tempData = {
-				labels: ["January", "February", "March", "April", "May", "June", "July"],
+			
+			
+				labels: labels,
 				datasets:[
 					{
 						label: "Total Bills",
@@ -50,7 +55,7 @@ define(['jquery'], function($) {
 						pointStrokeColor: "#fff",
 						pointHighlightFill: "#fff",
 						pointHighlightStroke: "rgba(220,220,220,1)",
-						data: [65, 59, 80, 81, 56, 55, 40] // currently empty will contain all the data points for bills
+						data: data
 				    }
 				]
 			};
