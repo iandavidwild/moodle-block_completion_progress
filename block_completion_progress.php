@@ -255,15 +255,15 @@ class block_completion_progress extends block_base {
                 $completions = block_completion_progress_completions($activities, $USER->id, $COURSE, $submissions);
                 
                 $this->content->text .= html_writer::empty_tag('canvas', array('id'=>'myLineChart'));
-               /* $this->content->text .= block_completion_progress_bar(
-                    $activities,
-                    $completions,
-                    $this->config,
-                    $USER->id,
-                    $COURSE->id,
-                    $this->instance->id
-                );
-                */
+                
+                $json = block_completion_progress_json(
+                        $activities, 
+                        $completions, 
+                        $this->config, 
+                        $USER->id,
+                        $COURSE->id,
+                        $this->instance->id);
+                
             }
             $blockinstancesonpage = array($this->instance->id);
 
@@ -280,11 +280,7 @@ class block_completion_progress extends block_base {
         // load the chart using Chart.js
         $this->page->requires->js('/blocks/completion_progress/thirdparty/Chart.js', true);
         
-        // set up the data
-        $labels = array("January", "February", "March", "April", "May", "June", "July");
-        $data = array(65, 59, 80, 81, 56, 55, 40);
-        
-        $js_params = array(json_encode($labels), json_encode($data));
+        $js_params = array($json);
         
         $this->page->requires->js_call_amd('block_completion_progress/chart_renderer', 'drawLineChart', $js_params);
         
