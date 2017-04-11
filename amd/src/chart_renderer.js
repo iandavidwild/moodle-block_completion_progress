@@ -29,7 +29,7 @@
 define(['jquery'], function($) {    
 	var t = {
 	
-        drawLineChart: function(labelset, dataset) {
+        drawLineChart: function(dataset) {
 
 			// Add a helper to format timestamp data
 			Date.prototype.formatMMDDYYYY = function() {
@@ -39,8 +39,7 @@ define(['jquery'], function($) {
 			}
 
 			// Create the chart.js data structure using 'labelset' and 'dataset'
-			var data = $.parseJSON(dataset);
-			var labels = $.parseJSON(labelset);
+			var completion_data = $.parseJSON(dataset);
 			
 			var tempData = {
 			
