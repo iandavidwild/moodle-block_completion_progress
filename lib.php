@@ -589,6 +589,97 @@ function block_completion_progress_bar($activities, $completions, $config, $user
 }
 
 /**
+ * json encode progress data
+ *
+ * @param array    $activities  The activities with completion in the course
+ * @param array    $completions The user's completion of course activities
+ * @param stdClass $config      The blocks instance configuration settings
+ * @param int      $userid      The user's id
+ * @param int      $courseid    The course id
+ * @param int      instance     The block instance (to identify it on page)
+ * @param bool     $simple      Controls whether instructions are shown below a progress bar
+ * @return string json 
+ */
+function block_completion_progress_json($activities, $completions, $config, $userid, $courseid, $instance, $simple = false) {
+    global $OUTPUT, $USER;
+    
+    // create a json array of activities
+    $progress = array();
+    
+    // Get colours and use defaults if they are not set in global settings.
+    $colornames = array(
+            'completed_colour' => 'completed_colour',
+            'submittednotcomplete_colour' => 'submittednotcomplete_colour',
+            'notCompleted_colour' => 'notCompleted_colour',
+            'futureNotCompleted_colour' => 'futureNotCompleted_colour'
+    );
+    $colors = array();
+    foreach ($colornames as $name => $stringkey) {
+        $colors[$name] = get_config('block_completion_progress', $name) ?: get_string('block_completion_progress', $stringkey);
+    }
+    
+    $progress['colors'] = $colors;
+
+    // Determine links to activities.
+    $alternatelinks = block_completion_progress_modules_with_alternate_links();
+    
+    $numactivities = count($activities);
+    
+    for ($i = 0; $i < $numactivities; $i++) {
+        if ($userid != $USER->id &&
+                array_key_exists($activities[$i]['type'], $alternatelinks) &&
+                has_capability($alternatelinks[$activities[$i]['type']]['capability'], $activities[$i]['context'])
+                ) {
+                    $substitutions = array(
+                            '/:courseid/' => $courseid,
+                            '/:eventid/'  => $activities[$i]['instance'],
+                            '/:cmid/'     => $activities[$i]['id'],
+                            '/:userid/'   => $userid,
+                    );
+                    $link = $alternatelinks[$activities[$i]['type']]['url'];
+                    $link = preg_replace(array_keys($substitutions), array_values($substitutions), $link);
+                    $activities[$i]['link'] = $CFG->wwwroot.$link;
+                } else {
+                    $activities[$i]['link'] = $activities[$i]['url'];
+                }
+    }
+    
+    foreach ($activities as $activity) {
+        $activity_details = array();
+        
+        $completed = $completions[$activity['id']];
+        
+        $activity_details['name'] = s($activity['name']);
+        
+        if (!empty($activity['link']) && (!empty($activity['available']) || $simple)) {
+            $activity_details['link'] = $OUTPUT->action_link($activity['link'], $activity_details['name']);
+        } else {
+            $activity_details['link'];
+        }
+        
+        $activity_details['status'] = '';
+        
+        if ($completed == COMPLETION_COMPLETE) {
+            $activity_details['status'] = 'complete';
+        } else if ($completed == COMPLETION_COMPLETE_PASS) {
+            $activity_details['status'] = 'passed';
+        } else if ($completed == COMPLETION_COMPLETE_FAIL) {
+            $activity_details['status'] = 'failed';
+        } else {
+            if ($completed === 'submitted') {
+                $activity_details['status'] = 'submitted';
+            }
+        }
+        
+        $progress['activities'][] = $activity_details;
+    } 
+    
+    $data = json_encode($progress);
+    
+    return $data;
+}
+
+/**
  * Calculates an overall percentage of progress
  *
  * @param array $activities   The possible events that can occur for modules
