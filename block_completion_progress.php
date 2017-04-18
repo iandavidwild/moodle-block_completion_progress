@@ -254,7 +254,7 @@ class block_completion_progress extends block_base {
                 $submissions = block_completion_progress_student_submissions($COURSE->id, $USER->id);
                 $completions = block_completion_progress_completions($activities, $USER->id, $COURSE, $submissions);
                 
-                $this->content->text .= html_writer::empty_tag('canvas', array('id'=>'myLineChart'));
+                $this->content->text .= html_writer::empty_tag('canvas', array('id'=>'myChart'));
                 
                 $json = block_completion_progress_json(
                         $activities, 
@@ -282,7 +282,7 @@ class block_completion_progress extends block_base {
         
         $js_params = array($json);
         
-        $this->page->requires->js_call_amd('block_completion_progress/chart_renderer', 'drawLineChart', $js_params);
+        $this->page->requires->js_call_amd('block_completion_progress/chart_renderer', 'drawChart', $js_params);
         
         return $this->content;
     }
