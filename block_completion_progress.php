@@ -249,12 +249,10 @@ class block_completion_progress extends block_base {
                 return $this->content;
             }
 
-            // Display progress bar.
+            // Display progress chart.
             if (has_capability('block/completion_progress:showbar', $this->context)) {
                 $submissions = block_completion_progress_student_submissions($COURSE->id, $USER->id);
                 $completions = block_completion_progress_completions($activities, $USER->id, $COURSE, $submissions);
-                
-                $this->content->text .= html_writer::empty_tag('canvas', array('id'=>'myChart'));
                 
                 $json = block_completion_progress_json(
                         $activities, 
@@ -264,6 +262,7 @@ class block_completion_progress extends block_base {
                         $COURSE->id,
                         $this->instance->id);
                 
+                $this->content->text .= html_writer::empty_tag('canvas', array('id'=>'myChart'));
             }
             $blockinstancesonpage = array($this->instance->id);
 
@@ -275,15 +274,15 @@ class block_completion_progress extends block_base {
                 $options = array('class' => 'overviewButton');
                 $this->content->text .= $OUTPUT->single_button($url, $label, 'post', $options);
             }
+            
+            // load the chart using Chart.js
+            $this->page->requires->js('/blocks/completion_progress/thirdparty/Chart.js', true);
+            
+            $js_params = array($json);
+            
+            $this->page->requires->js_call_amd('block_completion_progress/chart_renderer', 'drawChart', $js_params);
         }
 
-        // load the chart using Chart.js
-        $this->page->requires->js('/blocks/completion_progress/thirdparty/Chart.js', true);
-        
-        $js_params = array($json);
-        
-        $this->page->requires->js_call_amd('block_completion_progress/chart_renderer', 'drawChart', $js_params);
-        
         return $this->content;
     }
 }
