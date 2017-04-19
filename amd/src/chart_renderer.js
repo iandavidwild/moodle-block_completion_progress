@@ -73,7 +73,7 @@ define(['jquery'], function($) {
 				}
 			}
 			
-			var tempData = {
+			var chartData = {
 				labels: labels,
 				datasets:[
 					{
@@ -90,7 +90,7 @@ define(['jquery'], function($) {
     	    // Instantiate a new chart
     	    var myChart = new Chart(ctx, {
 				type: 'pie',
-				data: tempData,
+				data: chartData,
 				options: {
 					legend: {
 						display: false
@@ -105,7 +105,7 @@ define(['jquery'], function($) {
 			                	      
 			                    var allData = data.datasets[tooltipItem.datasetIndex].data;
 			                    var tooltipLabel = data.labels[tooltipItem.index];
-			                    // truncate the label to 15 characters plus an elipsis if necessary:
+			                    // truncate the label to 15 characters plus an ellipsis if necessary:
 			                    return tooltipLabel.trunc(15);
 			                }
 			            }
