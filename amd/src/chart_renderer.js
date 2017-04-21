@@ -32,10 +32,10 @@ define(['jquery'], function($) {
 	
 	var t = {
 		
-        drawChart: function(dataset) {
+        drawChart: function(chartEl, dataSet) {
         	
 			// Create the chart.js data structure using 'labelset' and 'dataset'
-			var completion_data = $.parseJSON(dataset);
+			var completion_data = $.parseJSON(dataSet);
 			var array_len = completion_data.activities.length;
 			
 			var labels = [];
@@ -85,7 +85,7 @@ define(['jquery'], function($) {
 			};
 
     	    // Get the context of the canvas element we want to select
-    	    var ctx = document.getElementById("myChart").getContext("2d");
+    	    var ctx = document.getElementById(chartEl).getContext("2d");
 
     	    // Instantiate a new chart
     	    var myChart = new Chart(ctx, {
@@ -115,7 +115,7 @@ define(['jquery'], function($) {
     	    
     	    $(document).ready(
     		  function () {
-    		    var canvas = document.getElementById("myChart");
+    		    var canvas = document.getElementById(chartEl);
     		    
     		    canvas.onclick = function (evt) {
     		      var activePoints = myChart.getElementsAtEvent(evt);
@@ -126,7 +126,7 @@ define(['jquery'], function($) {
     		      window.location.href = url;
     		      return false;
     		    };
-    		  });
+    		});
         },
         
 	};
