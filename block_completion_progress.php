@@ -119,6 +119,9 @@ class block_completion_progress extends block_base {
             return $this->content;
         }
 
+        // load the chart using Chart.js
+        $this->page->requires->js('/blocks/completion_progress/thirdparty/Chart.js', true);
+        
         // Draw the multi-bar content for the Dashboard and Front page.
         if (block_completion_progress_on_site_page()) {
 
@@ -195,12 +198,8 @@ class block_completion_progress extends block_base {
                         $submissions = block_completion_progress_student_submissions($course->id, $USER->id);
                         $completions = block_completion_progress_completions($blockinstance->activities, $USER->id, $course,
                             $submissions);
-                        $this->content->text .= block_completion_progress_bar($blockinstance->activities,
-                                                                    $completions,
-                                                                    $blockinstance->config,
-                                                                    $USER->id,
-                                                                    $course->id,
-                                                                    $blockinstance->id);
+                        
+                        
                     }
                 }
             }
@@ -262,7 +261,7 @@ class block_completion_progress extends block_base {
                         $COURSE->id,
                         $this->instance->id);
                 
-                $this->content->text .= html_writer::empty_tag('canvas', array('id'=>'myChart'));
+                $this->content->text .= html_writer::empty_tag('canvas', array('id'=>'progressChart'));
             }
             $blockinstancesonpage = array($this->instance->id);
 
@@ -275,10 +274,7 @@ class block_completion_progress extends block_base {
                 $this->content->text .= $OUTPUT->single_button($url, $label, 'post', $options);
             }
             
-            // load the chart using Chart.js
-            $this->page->requires->js('/blocks/completion_progress/thirdparty/Chart.js', true);
-            
-            $js_params = array($json);
+            $js_params = array('progressChart', $json);
             
             $this->page->requires->js_call_amd('block_completion_progress/chart_renderer', 'drawChart', $js_params);
         }
