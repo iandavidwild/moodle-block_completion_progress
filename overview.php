@@ -19,7 +19,7 @@
  * Completion Progress block overview page
  *
  * @package    block_completion_progress
- * @copyright  2016 Michael de Raadt
+ * @copyright  2017 Ian Wild
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -74,6 +74,9 @@ $PAGE->set_pagelayout('report');
 require_login($course, false);
 require_capability('block/completion_progress:overview', $blockcontext);
 confirm_sesskey();
+
+// load the chart using Chart.js
+$PAGE->requires->js('/blocks/completion_progress/thirdparty/Chart.js', true);
 
 // Start page output.
 echo $OUTPUT->header();
@@ -274,10 +277,27 @@ for ($i = $startuser; $i < $enduser; $i++) {
     $useractivities = block_completion_progress_filter_visibility($activities, $users[$i]->id, $course->id);
     if (!empty($useractivities)) {
         $completions = block_completion_progress_completions($useractivities, $users[$i]->id, $course, $users[$i]->submissions);
-        $progressbar = block_completion_progress_bar($useractivities, $completions, $config, $users[$i]->id, $course->id,
-            $block->id, true);
-        $progressvalue = block_completion_progress_percentage($useractivities, $completions);
-        $progress = $progressvalue.'%';
+        
+        $json = block_completion_progress_json(
+                $useractivities,
+                $completions,
+                $config,
+                $users[$i]->id,
+                $course->id,
+                $block->id);
+        
+        // decode the data to obtain the progress
+        $data = json_decode($json);
+        
+        $chartid = 'progressChart' . $users[$i]->id;
+        $progressbar = html_writer::tag('canvas', '', array('id'=>$chartid));
+        $progressvalue = $data->percentage;
+        $progress = $progressvalue . '%';
+        
+        $js_params = array($chartid, $json);
+        
+        $PAGE->requires->js_call_amd('block_completion_progress/chart_renderer', 'drawBar', $js_params);
+        
     } else {
         $progressbar = get_string('no_visible_events_message', 'block_completion_progress');
         $progressvalue = 0;
@@ -351,11 +371,6 @@ if ($CFG->enablenotes || $CFG->messaging) {
 $module = array('name' => 'core_user', 'fullpath' => '/user/module.js');
 $PAGE->requires->js_init_call('M.core_user.init_participation', null, false, $module);
 
-// Organise access to JS for progress bars.
-$jsmodule = array('name' => 'block_completion_progress', 'fullpath' => '/blocks/completion_progress/module.js');
-$arguments = array(array($block->id), $userids);
-$PAGE->requires->js_init_call('M.block_completion_progress.setupScrolling', array(), false, $jsmodule);
-$PAGE->requires->js_init_call('M.block_completion_progress.init', $arguments, false, $jsmodule);
 
 echo $OUTPUT->container_end();
 echo $OUTPUT->footer();
