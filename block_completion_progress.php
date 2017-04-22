@@ -181,25 +181,43 @@ class block_completion_progress extends block_base {
                     }
                     $blockinstancesonpage = array_merge($blockinstancesonpage, array_keys($blockinstances));
 
-                    // Output the Progress Bar.
+                    // Output the Progress doughnut, in its own DIV so we can lay out the page.                 
                     if (!empty($blockinstances)) {
+                        $this->content->text .= HTML_WRITER::start_div('progress_doughnut');
+                        
                         $courselink = new moodle_url('/course/view.php', array('id' => $course->id));
                         $linktext = HTML_WRITER::tag('h3', s($course->$coursenametoshow));
                         $this->content->text .= HTML_WRITER::link($courselink, $linktext);
-                    }
-                    foreach ($blockinstances as $blockid => $blockinstance) {
-                        if (
-                            isset($blockinstance->config) &&
-                            isset($blockinstance->config->progressTitle) &&
-                            $blockinstance->config->progressTitle != ''
-                        ) {
-                            $this->content->text .= HTML_WRITER::tag('p', s(format_string($blockinstance->config->progressTitle)));
-                        }
-                        $submissions = block_completion_progress_student_submissions($course->id, $USER->id);
-                        $completions = block_completion_progress_completions($blockinstance->activities, $USER->id, $course,
-                            $submissions);
-                        
-                        
+                    
+                        foreach ($blockinstances as $blockid => $blockinstance) {
+                            if (
+                                isset($blockinstance->config) &&
+                                isset($blockinstance->config->progressTitle) &&
+                                $blockinstance->config->progressTitle != ''
+                            ) {
+                                $this->content->text .= HTML_WRITER::tag('p', s(format_string($blockinstance->config->progressTitle)));
+                            }
+                            $submissions = block_completion_progress_student_submissions($course->id, $USER->id);
+                            $completions = block_completion_progress_completions($blockinstance->activities, $USER->id, $course,
+                                $submissions);
+                            
+                            $json = block_completion_progress_json(
+                                    $blockinstance->activities,
+                                    $completions,
+                                    $this->config,
+                                    $USER->id,
+                                    $courseid,
+                                    $this->instance->id);
+                            
+                            $chartid = 'progressChart' . $courseid;
+                            
+                            $this->content->text .= HTML_WRITER::tag('canvas', '', array('id'=>$chartid));
+                            
+                            $js_params = array($chartid, 'doughnut', $json, true);
+                            
+                            $this->page->requires->js_call_amd('block_completion_progress/chart_renderer', 'drawChart', $js_params);
+                        }// foreach
+                        $this->content->text .= HTML_WRITER::end_div();
                     }
                 }
             }
@@ -261,7 +279,7 @@ class block_completion_progress extends block_base {
                         $COURSE->id,
                         $this->instance->id);
                 
-                $this->content->text .= html_writer::empty_tag('canvas', array('id'=>'progressChart'));
+                $this->content->text .= HTML_WRITER::tag('canvas', '', array('id'=>'progressChart'));
             }
             $blockinstancesonpage = array($this->instance->id);
 
@@ -274,7 +292,7 @@ class block_completion_progress extends block_base {
                 $this->content->text .= $OUTPUT->single_button($url, $label, 'post', $options);
             }
             
-            $js_params = array('progressChart', $json);
+            $js_params = array('progressChart', 'pie', $json, false);
             
             $this->page->requires->js_call_amd('block_completion_progress/chart_renderer', 'drawChart', $js_params);
         }
