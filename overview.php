@@ -75,7 +75,7 @@ require_login($course, false);
 require_capability('block/completion_progress:overview', $blockcontext);
 confirm_sesskey();
 
-// load the chart using Chart.js
+// load the chart using Chart.js - needs to be loaded calling js_call_amd()
 $PAGE->requires->js('/blocks/completion_progress/thirdparty/Chart.js', true);
 
 // Start page output.
@@ -407,7 +407,6 @@ function block_completion_progress_compare_rows($a, $b) {
                 break;
         }
 
-        // Check of order can be established.
         // Check of order can be established.
         if (is_array($a)) {
             $first = $a[$aspect];
