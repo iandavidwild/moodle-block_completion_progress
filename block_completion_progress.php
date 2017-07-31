@@ -119,9 +119,6 @@ class block_completion_progress extends block_base {
             return $this->content;
         }
 
-        // load the chart using Chart.js
-        $this->page->requires->js('/blocks/completion_progress/thirdparty/Chart.js', true);
-        
         // Draw the multi-bar content for the Dashboard and Front page.
         if (block_completion_progress_on_site_page()) {
 

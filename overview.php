@@ -75,9 +75,6 @@ require_login($course, false);
 require_capability('block/completion_progress:overview', $blockcontext);
 confirm_sesskey();
 
-// load the chart using Chart.js - needs to be loaded calling js_call_amd()
-$PAGE->requires->js('/blocks/completion_progress/thirdparty/Chart.js', true);
-
 // Start page output.
 echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 2);

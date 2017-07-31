@@ -26,7 +26,14 @@
  * @since      3.1
  */
 
-define(['jquery'], function($) {  
+
+requirejs.config({
+    paths: {
+        "chart": '/blocks/completion_progress/thirdparty/Chart',
+    }
+});
+
+define(['jquery', 'chart'], function($) {  
 	
 	var links = [];
 	
