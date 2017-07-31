@@ -394,7 +394,7 @@ function block_completion_progress_json($activities, $completions, $config, $use
         if (!empty($activity['link']) && (!empty($activity['available']) || $simple)) {
             $activity_details['link'] = $activity['link'];
         } else {
-            $activity_details['link'];
+            $activity_details['link'] = '';
         }
         
         $activity_details['status'] = '';
